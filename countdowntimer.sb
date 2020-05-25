@@ -1,0 +1,139 @@
+GraphicsWindow.Title = "Zoomの時間までを教えてあげるタイマー "
+oldsec=0
+'tiltime_t=Clock.ElapsedMilliseconds
+
+InitForm()
+Controls.ButtonClicked=OnButtonClicked
+Timer.Tick = OntimerTick
+Timer.Pause()
+
+Sub InitForm
+  GraphicsWindow.Width = 600
+  GraphicsWindow.Height = 650
+  GraphicsWindow.FontName = "Segoe UI Symbol"
+  GraphicsWindow.CanResize= "False"
+  GraphicsWindow.Top = 0
+  GraphicsWindow.Show()
+  Timer.Interval = 1000
+  
+  GraphicsWindow.FontSize = 120
+  Text[2] = Shapes.AddText("カウントダウンタイマー：")
+  Shapes.Move(Text[2],1,200)
+  
+  GraphicsWindow.FontSize = 20
+  Text[1] = Shapes.AddText(Clock.Time)
+  Shapes.Move(Text[1],0,0)
+  
+  button[1] = Controls.AddButton("▶",300,600)
+  Controls.SetSize(button[1],80,50)
+  button[2] = Controls.AddButton("◧",400,600)
+  Controls.SetSize(button[2],80,50)
+  button[3] = Controls.AddButton("■",500,600)
+  Controls.SetSize(button[3],80,50)
+  button[4] = Controls.AddButton("音(CHI)",400,0)
+  Controls.SetSize(button[4],80,50)
+  button[5] = Controls.AddButton("音(PRM)",500,0)
+  Controls.SetSize(button[5],80,50)
+  
+  T1h = Controls.AddTextBox(0,600)
+  Controls.SetSize(T1h,80,50)
+  Controls.SetTextBoxText(T1h,"0")
+  
+  T1m = Controls.AddTextBox(90,600)
+  Controls.SetSize(T1m,80,50)
+  Controls.SetTextBoxText(T1m,"0")
+  
+  T1s = Controls.AddTextBox(180,600)
+  Controls.SetSize(T1s,80,50)
+  Controls.SetTextBoxText(T1s,"30")
+EndSub
+
+Sub OnTimerTick
+  If  tiltime_t >  Clock.ElapsedMilliseconds  Then
+    sec = Clock.Second
+    str = "TIME - " + Clock.Hour + ":" + Clock.Minute + ":" + sec  + "." + Clock.Millisecond
+    Shapes.SetText(Text[1],str)
+    If oldsec <> sec Then
+      If Math.Remainder( sec, 2) = 0  Then
+        If "♪" =  Controls.GetButtonCaption(button[4]) Then
+          Sound.PlayClick()
+        EndIf
+      Else
+        If "♪" =  Controls.GetButtonCaption(button[5]) Then
+          Sound.PlayChimes()
+        EndIf
+      EndIf
+      
+      nowtime_t = math.Floor((tiltime_t -  Clock.ElapsedMilliseconds )/1000)
+      m1= Math.Remainder(nowtime_t, 3600)
+      s1= Math.Remainder(m1, 60)
+      h2=math.Floor(nowtime_t /3600)
+      m2=math.Floor(m1 /60)
+      s2=s1
+      If h2 < 10 Then
+        h2 = "_" + "0" +  h2
+      EndIf
+      If m2 < 10 Then
+        m2 = ":" + "0" +  m2
+      Else
+        m2 = ":"  +  m2
+      EndIf
+      If s2 < 10 Then
+        s2 = ":" + "0" +  s2
+      Else
+        s2 = ":"  +  s2
+      EndIf
+      
+      str =  h2 + m2  + s2 +"_"
+      If Math.Remainder( sec, 4) = 0  Then
+        Shapes.SetText(Text[2],str)
+        GraphicsWindow.BackgroundColor = "black"
+      ElseIf Math.Remainder( sec, 4) = 1  Then
+        Shapes.SetText(Text[2],str)
+        GraphicsWindow.BackgroundColor = "Gray"
+      ElseIf Math.Remainder( sec, 4) = 2  Then
+        Shapes.SetText(Text[2],str)
+        GraphicsWindow.BackgroundColor = "black"
+      ElseIf Math.Remainder( sec, 4) = 3  Then
+        Shapes.SetText(Text[2],str)
+        GraphicsWindow.BackgroundColor = "Gray"
+      Else
+        Shapes.SetText(Text[2],Str)
+      EndIf
+      oldsec=sec
+    Else
+      Shapes.SetText(Text[1],Str)
+    EndIf
+    
+  Else
+    Timer.Pause()
+    GraphicsWindow.BackgroundColor = "red"
+    Shapes.SetText(Text[2],"時間です")
+  EndIf
+EndSub
+
+Sub OnButtonClicked
+  If Controls.LastClickedButton = button[1] Then
+    target = 3600 * Controls.GetTextBoxText(T1h) + 60 * Controls.GetTextBoxText(T1m) + Controls.GetTextBoxText(T1s) * 1
+    tiltime_t = clock.ElapsedMilliseconds + target * 1000
+    GraphicsWindow.BackgroundColor = "black"
+    GraphicsWindow.BrushColor = "wihte"
+    Timer.Resume()
+  ElseIf Controls.LastClickedButton = button[2] Then
+    Timer.Resume()
+  ElseIf Controls.LastClickedButton = button[3] Then
+    Timer.Pause()
+  ElseIf Controls.LastClickedButton = button[4] Then
+    If "♪" =  Controls.GetButtonCaption(button[4]) Then
+      Controls.SetButtonCaption(button[4], "x-1")
+    Else
+      Controls.SetButtonCaption(button[4], "♪")
+    EndIf
+  ElseIf Controls.LastClickedButton = button[5] Then
+    If "♪" =  Controls.GetButtonCaption(button[5]) Then
+      Controls.SetButtonCaption(button[5], "x-2")
+    Else
+      Controls.SetButtonCaption(button[5], "♪")
+    EndIf
+  EndIf
+EndSub
