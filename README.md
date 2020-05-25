@@ -16,6 +16,6 @@ Zoomで会議するときに、残り時間を意識してもらうためのア�
 
 screen 
 
-[f1](./img/screen1.png)
-[f2](./img/screen2.png)
+![f1](./img/screen1.png)
+![f2](./img/screen2.png)
 
